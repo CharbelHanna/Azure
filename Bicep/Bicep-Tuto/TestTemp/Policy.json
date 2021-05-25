@@ -1,0 +1,31 @@
+{
+  "properties": {
+    "displayName": "komo_ACRDenyAccessTokensAuth",
+    "policyType": "Custom",
+    "mode": "All",
+    "metadata": {
+      "category": "TnC - Container Registry",
+      "createdBy": "709d1e65-6837-44c1-a512-874cc091dc99",
+      "createdOn": "2021-04-07T14:49:14.7185116Z",
+      "updatedBy": "709d1e65-6837-44c1-a512-874cc091dc99",
+      "updatedOn": "2021-04-07T20:12:06.9808701Z"
+    },
+    "parameters": {},
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.ContainerRegistry/registries/tokens"
+          }
+        ]
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
+  },
+  "id": "/subscriptions/285ef6e9-4af0-42c7-8bfc-2fe8a27084eb/providers/Microsoft.Authorization/policyDefinitions/3b4a8689-cc7e-4eec-8d9f-fa5e673436e8",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "3b4a8689-cc7e-4eec-8d9f-fa5e673436e8"
+}

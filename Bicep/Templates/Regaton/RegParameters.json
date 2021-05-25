@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "webapp": {
+            "value": {
+                "resourcegroupName": "regaRG1",
+                "namePrefix": "regatonapp",
+                "ResourceGroup": "KOMO-APS-TEST-rg",
+                "alwaysOn": true,
+                "sku": "PremiumV2",
+                "skuFamily": "Pv2",
+                "skuCode": "P1v2",
+                "skuSize": "P1v2",
+                "skuCapacity": 1,
+                "linuxFxVersion": "DOTNETCORE|5.0"
+            }
+        },
+        "storageAccount": {
+            "value": {
+                "resourcegroupName": "regaRG3",
+                "namePrefix": "regationStg",
+                "type": "StorageV2",
+                "sku": {
+                    "value": {
+                        "name": "Standard_LRS",
+                        "tier": "Standard"
+                    }
+                }
+            }
+        },
+        "sql": {
+            "value": {
+                "resourcegroupName": "regaRG2",
+                "server": {
+                    "value": {
+                        "name": "regatonsqlsvr",
+                        "adminLogin": "regatonsqladmin",
+                        "adminPassword": "P@ssw0rd"
+                    }
+                },
+                "database": {
+                    "value": {
+                        "name": "regatondb",
+                        "collation": "SQL_Latin1_General_CP1_CI_AS",
+                        "catalogCollation":"SQL_Latin1_General_CP1_CI_AS",
+                        "kind":"v12.0,user",
+                        "sku":{
+                            "name":"Standard",
+                            "tier":"Standard",
+                            "capacity":"10"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
