@@ -3,26 +3,27 @@
 param webapp object
 param storageAccount object
 param sql object
-//param location string = deployment().location
+
+//set targetscope to subscription 
 targetScope = 'subscription'
+param location string = deployment().location
 
-//create resource groups
-
-
+//create resource groups--------------
 resource webapprg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   name: webapp.resourcegroupName
-  location:'westeurope'
+  location:location
 }
 resource sqlrg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   name: sql.resourcegroupName
-  location:'westeurope'
+  location:location
 }
 resource stgrg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   name: storageAccount.resourcegroupName
-  location:'westeurope'
+  location:location
 }
+//finish  create resource goups--------------------
 
-//modules references ---------------------
+//modules references---------------------
 //calling module by referring to the module name and local path
 module WebAppModule 'Modules/Webapp.bicep' = {
   name: 'webAppDeploy'
@@ -34,15 +35,15 @@ module WebAppModule 'Modules/Webapp.bicep' = {
     storageEndpoint: StgModule.outputs.storageEndpoint
     storageId: StgModule.outputs.storageId
     sqlConnectionString: SqlModule.outputs.SqlConnectionString
-    location:'westeurope'
+    location:location
   }
 }
 module StgModule 'Modules/Storage.bicep' = {
   name: 'storageAccountDeploy'
   scope: stgrg
   params: {
-    storageAccount: storageAccount
-    location:'westeurope'
+    storageAccount:storageAccount
+    location:location
   }
 }
 
@@ -51,6 +52,6 @@ module SqlModule 'Modules/Sql.bicep' = {
   scope: sqlrg
   params: {
     sql: sql
-    location:'westeurope'
+    location:location
   }
 }
