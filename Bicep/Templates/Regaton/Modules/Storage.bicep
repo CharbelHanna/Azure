@@ -9,8 +9,8 @@ name:storageAccountName
 location:location
 kind:storageAccount.type
 sku: {
-    name:storageAccount.Sku.name
-    tier:storageAccount.Sku.tier
+    name:'Standard_LRS'
+    tier:'Standard'
   }
 }
 

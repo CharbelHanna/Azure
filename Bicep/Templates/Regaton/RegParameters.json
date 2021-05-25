@@ -21,12 +21,8 @@
                 "namePrefix": "regationstg",
                 "type": "StorageV2",
                 "containerName":"images",
-                "sku": {
-                    "value": {
-                        "name": "Standard_LRS",
-                        "tier": "Standard"
-                    }
-                }
+                "skuName":"Standard_LRS",
+                "skuTier": "Standard"
             }
         },
         "sql": {

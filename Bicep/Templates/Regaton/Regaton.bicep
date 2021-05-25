@@ -21,7 +21,6 @@ resource stgrg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   name: storageAccount.resourcegroupName
   location:location
 }
-//finish  create resource goups--------------------
 
 //modules references---------------------
 //calling module by referring to the module name and local path
