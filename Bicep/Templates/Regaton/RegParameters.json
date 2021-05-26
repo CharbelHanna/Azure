@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "webapp": {
+        "webApp": {
             "value": {
                 "resourcegroupName": "regaRG1",
                 "namePrefix": "regatonapp",
@@ -20,8 +20,8 @@
                 "resourcegroupName": "regaRG3",
                 "namePrefix": "regationstg",
                 "type": "StorageV2",
-                "containerName":"images",
-                "skuName":"Standard_LRS",
+                "containerName": "images",
+                "skuName": "Standard_LRS",
                 "skuTier": "Standard"
             }
         },

@@ -4,10 +4,8 @@ param storageId string
 param sqlConnectionString string
 param location string
 
-var webappName = '${webapp.namePrefix}-webapp${uniqueString(resourceGroup().id)}'
+var webappName = '${webapp.namePrefix}${uniqueString(resourceGroup().id)}'
 var hostingPlanName = '${webappName}-Hostingplan'
-
-targetScope = 'resourceGroup'
 
 resource webapp_resource 'Microsoft.Web/sites@2020-12-01' = {
   name: webapp.name
