@@ -1,14 +1,8 @@
-//parameters--------------------
-
 param webApp object
 param storageAccount object
 param sql object
-
-//set targetscope to subscription 
 targetScope = 'subscription'
 param location string = deployment().location
-
-//create resource groups--------------
 resource webapprg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   name: webApp.resourcegroupName
   location:location
@@ -21,10 +15,8 @@ resource stgrg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   name: storageAccount.resourcegroupName
   location:location
 }
-
 //modules references---------------------
 //calling module by referring to the module name and local path
-
 module StgModule 'Modules/Storage.bicep' = {
   name: 'storageAccountDeploy'
   scope: stgrg
@@ -33,7 +25,6 @@ module StgModule 'Modules/Storage.bicep' = {
     location:location
   }
 }
-
 module SqlModule 'Modules/Sql.bicep' = {
   name: 'SqlDeploy'
   scope: sqlrg
@@ -42,7 +33,6 @@ module SqlModule 'Modules/Sql.bicep' = {
     location:location
   }
 }
-
 module WebAppModule 'Modules/Webapp.bicep' = {
   name: 'webAppDeploy'
   scope: webapprg
