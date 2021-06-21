@@ -1,0 +1,56 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        
+        "namePrefix": {
+            "type": "string"
+        },
+        "dockerRegistryUrl": {
+            "type": "string"
+        },
+        "appPlanid": {
+            "type": "string"
+        },
+        "dockerImage":{
+            "type": "string"
+        },
+        "dockerImageTag":{
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2018-11-01",
+            "name": "[concat(parameters('namePrefix'),'site')]",
+            "type": "Microsoft.Web/sites",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "DOCKER_REGISTRY_SERVER_URL",
+                            "value": "[parameters('dockerRegistryUrl')]"
+                        },
+                        {
+                            "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+                            "value": ""
+                        },
+                        {
+                            "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+                            "value": ""
+                        },
+                        {
+                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                            "value": "false"
+                        }
+                    ],
+                    "linuxFxVersion": "[format('DOCKER|{0}:{1}',parameters('dockerImage'),parameters('dockerImageTag'))]"
+                },
+                "serverFarmId": "[parameters('appPlanId')]"
+                
+            }
+        }
+
+    ]
+}
