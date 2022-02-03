@@ -1,0 +1,232 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+      "parameters": {
+        "DepartmentCode": {
+          "type": "string",
+          "metadata": {
+              "description": "The team or department unique code"
+          }
+      },
+      "ApplicationName": {
+          "type": "string",
+          "metadata": {
+              "description": "The name of the application that the resource is deployed for"
+          }
+      },
+      "AppEnvironment": {
+          "type": "string",
+          "metadata": {
+              "description": "The environment of the application where the resource is deployed"
+          }
+      },
+      "LocationCode": {
+          "type": "string",
+          "metadata": {
+              "description": "The Location Code of the application where the resource is deployed"
+          }
+      },  
+     "administratorLogin": {
+          "type": "string",
+          "metadata": {
+              "description": "The Administrator Login of the application"
+          }
+      },
+      "administratorLoginPassword": {
+          "type": "securestring",
+          "metadata": {
+              "description": "The Administrator Login Password of the application"
+          }
+      },
+      "FreeTextForName": {
+          "type": "string",
+          "metadata": {
+              "description": "Name of the application"
+          }
+      },
+      "version": {
+          "type": "string",
+          "metadata": {
+              "description": "Version of the application"
+          }
+      },
+      "virtualNetworkId": {
+          "type": "string",
+          "metadata": {
+              "description": "Virtual NetworkId to integrate the application"
+          }
+      },
+      "delegatedSubnetName": {
+        "type": "string",
+        "metadata": {
+            "description": "Specify Delegated Subnet Name"
+        }
+      },
+      "DelegatedSubnetAddressPrefix": {
+        "type": "string"
+      },
+      "DelegatedSubnetNSGId": {
+        "type": "string"
+      }
+  },
+  "variables": {
+      "api": "2020-02-14-preview",
+      "serverName":"[concat(parameters('DepartmentCode'),parameters('ApplicationName'),parameters('AppEnvironment'),parameters('locationCode'),'psqlf',parameters('FreeTextForName'))]",
+      "arrvirtualNetworkId":"[split(parameters('virtualNetworkId'), '/')]",
+      "privateDnsResourceGroup":"[variables('arrvirtualNetworkId')[4]]",
+      "privateDnsSubscriptionId":"[variables('arrvirtualNetworkId')[2]]",
+      "virtualNetworkName":"[last(variables('arrvirtualNetworkId'))]",
+      "privateDnsZoneName":  "[concat(variables('serverName'),'.private.postgres.database.azure.com')]",
+      "privateDnsZoneArguments": {
+        "PrivateDnsZoneArmResourceId": "[concat('/subscriptions/',variables('privateDnsSubscriptionId'),'/resourceGroups/',variables('privateDnsResourceGroup'),'/providers/Microsoft.Network/privateDnsZones/',variables('privateDnsZoneName'))]"
+      },
+      "delegatedSubnetId":"[concat('/subscriptions/',variables('privateDnsSubscriptionId'),'/resourceGroups/',variables('privateDnsResourceGroup'),'/providers/Microsoft.Network/virtualNetworks/',variables('virtualNetworkName'),'/subnets/',parameters('delegatedSubnetName'))]",
+      "delegatedSubnetArguments": {
+        "SubnetArmResourceId": "[variables('delegatedSubnetId')]"
+      },
+      "subnetProperties": {
+        "provisioningState": "Succeeded",
+        "addressPrefix": "[parameters('DelegatedSubnetAddressPrefix')]",
+        "networkSecurityGroup": {
+            "id": "[parameters('DelegatedSubnetNSGId')]"
+        },
+        "delegations": [
+            {
+                "name": "dlg-Microsoft.DBforPostgreSQL-flexibleServers",
+                "properties": {
+                    "serviceName": "Microsoft.DBforPostgreSQL/flexibleServers"
+                }
+            }
+        ],
+        "privateEndpointNetworkPolicies": "Disabled",
+        "privateLinkServiceNetworkPolicies": "Enabled"
+    },
+    "virtualNetworkDeploymentName":"[toLower(concat('virtualNetwork', uniqueString(resourceGroup().id)))]",
+    "virtualNetworkLinkDeploymentName":"[toLower(concat('virtualNetworkLink', uniqueString(resourceGroup().id)))]",
+    "privateDnsZoneDeploymentName":"[toLower(concat('privateDnsZone', uniqueString(resourceGroup().id)))]"
+  },
+  "resources": [
+      {
+          "type": "Microsoft.Resources/deployments",
+          "name": "[variables('privateDnsZoneDeploymentName')]",
+          "apiVersion": "2020-06-01",
+          "subscriptionId": "[variables('privateDnsSubscriptionId')]",
+          "resourceGroup": "[variables('privateDnsResourceGroup')]",
+          "properties": {
+              "mode": "Incremental",
+              "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {},
+                  "variables": {},
+                  "resources": [
+                      {
+                          "type": "Microsoft.Network/privateDnsZones",
+                          "apiVersion": "2018-09-01",
+                          "name": "[variables('privateDnsZoneName')]",
+                          "location": "global",
+                          "properties": {}
+                      }
+                  ]
+              }
+          }
+      },
+      {
+        "type": "Microsoft.Resources/deployments",
+        "name": "[variables('virtualNetworkDeploymentName')]",
+        "apiVersion": "2020-06-01",
+        "resourceGroup": "[variables('privateDnsResourceGroup')]",
+        "subscriptionId": "[variables('privateDnsSubscriptionId')]",
+        "properties": {
+            "mode": "Incremental",
+            "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {},
+                "variables": {},
+                "resources": [
+                    {
+                        "type": "Microsoft.Network/virtualNetworks/subnets",
+                        "name": "[concat(variables('virtualNetworkName'), '/', parameters('delegatedSubnetName'))]",
+                        "apiVersion": "2020-05-01",
+                        "properties": "[variables('subnetProperties')]"
+                    }
+                ]
+            }
+        }
+      },
+      {
+          "apiVersion": "2020-06-01",
+          "name": "[variables('virtualNetworkLinkDeploymentName')]",
+          "type": "Microsoft.Resources/deployments",
+          "dependsOn": [
+              "[variables('privateDnsZoneDeploymentName')]"
+          ],
+          "subscriptionId": "[variables('privateDnsSubscriptionId')]",
+          "resourceGroup": "[variables('privateDnsResourceGroup')]",
+          "properties": {
+              "mode": "Incremental",
+              "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "resources": [
+                       {
+                          "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                          "apiVersion": "2020-06-01",
+                          "name": "[concat(variables('privateDnsZoneName'), '/', uniqueString(parameters('virtualNetworkId')))]",
+                          "location": "global",
+                          "properties": {
+                              "virtualNetwork": {
+                                  "id": "[parameters('virtualNetworkId')]"
+                              },
+                              "registrationEnabled": false
+                          }
+                      }
+                  ]
+              }
+          }
+      },
+      {
+          "apiVersion": "[variables('api')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+              "[variables('virtualNetworkLinkDeploymentName')]"
+          ],
+          "name": "[variables('serverName')]",
+          "properties": {
+              "version": "[parameters('version')]",
+              "administratorLogin": "[parameters('administratorLogin')]",
+              "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+              "publicNetworkAccess": "Disabled",
+              "DelegatedSubnetArguments": "[if(empty(variables('delegatedSubnetArguments')), json('null'), variables('delegatedSubnetArguments'))]",
+              "PrivateDnsZoneArguments": "[if(empty(variables('privateDnsZoneArguments')), json('null'), variables('privateDnsZoneArguments'))]",
+              "haEnabled": "Disabled",
+              "storageProfile": {
+                  "storageMB": 131072,
+                  "backupRetentionDays": 7,
+                  "geoRedundantBackup": "Disabled"
+              },
+              "availabilityZone": ""
+          },
+          "sku": {
+              "name": "Standard_D2ds_v4",
+              "tier": "GeneralPurpose"
+          },
+          "type": "Microsoft.DBforPostgreSQL/flexibleServers"
+      }
+  ],
+  "outputs": { 
+    "DelegatedSubnetArguments": {
+        "type": "object",
+        "value": "[variables('delegatedSubnetArguments')]"
+      },
+      "PrivateDnsZoneArguments": {
+        "type": "object",
+        "value": "[variables('privateDnsZoneArguments')]"
+      },
+      "virtualNetworkLinkDeploymentName": {
+        "type": "string",
+        "value": "[variables('virtualNetworkLinkDeploymentName')]"
+      }
+  }
+}
