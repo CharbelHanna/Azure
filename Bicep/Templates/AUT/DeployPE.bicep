@@ -17,7 +17,6 @@ param subnetName string
 param subnetID string
 @description('Existing Subnet Object')
 param subnetProperties object
-
 //End Prarams declaration
 
 
