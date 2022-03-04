@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "AutomationAccountName": {
+            "value": "zhsaccacc01",
+            "metadata": {
+                "description": "Automation Account Name"
+            }
+        },
+        "ExistingVNETName": {
+            "value": "tnc-komtrpr-dev-we-vnet",
+            "metadata": {
+                "description": "Existing VNET Name"
+            }
+        },
+        "ExistingVNETRGName": {
+            "value": "tnc-komtrpr-dev-we",
+            "metadata": {
+                "description": "Existing Virtual Network Name"
+            }
+
+        },
+        "ExistingSUBNETName": {
+            "value": "pesubnet",
+            "metadata": {
+                "description": "Existing Subnet Name"
+            }
+        },
+        "ExistingRGName": {
+            "value": "komo-acc-rg",
+            "metadata": {
+                "description": "Existing Deployment ResourceGroup Name"
+            }
+        },
+        "privatelinkSubResource": {
+            "value": "Webhook",
+            "metadata": {
+                "description": "The Private Endpoint Sub Resource"
+            }
+        }
+        
+    }
+}

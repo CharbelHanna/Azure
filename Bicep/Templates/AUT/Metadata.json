@@ -1,0 +1,11 @@
+{
+    "Description": [
+        "Deploy a Secure Azure Automation account",
+        "Secure Network connectivity with private Endpoint",
+        "Deploy Private DNS Zone"
+    ],
+    "version": "1.0.0",
+    "Change-log": {
+        "1.0.0": "initial release"
+    }
+}
