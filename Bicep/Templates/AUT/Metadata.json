@@ -1,4 +1,10 @@
 {
+    "Author": {
+        "Display Name": "Charbel HANNA",
+        "Email": "charbel_hanna@hotmail.com",
+        "Twitter": "@charbelh",
+        "website":"https://zerohoursleep.net"
+    },
     "Description": [
         "Deploy a Secure Azure Automation account",
         "Secure Network connectivity with private Endpoint",

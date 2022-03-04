@@ -1,10 +1,30 @@
+/*
+{
+    "Author": {
+        "Display Name": "Charbel HANNA",
+        "Email": "charbel_hanna@hotmail.com",
+        "Twitter": "@charbelh",
+        "website":"https://zerohoursleep.net"
+    },
+    "Description": [
+        "Deploy a Secure Azure Automation account",
+        "Secure Network connectivity with private Endpoint",
+        "Deploy Private DNS Zone"
+    ],
+    "version": "1.0.0",
+    "Change-log": {
+        "1.0.0": "initial release"
+    }
+}
+*/
+
 targetScope = 'subscription'
 
 param location string = deployment().location
 
 // start params declaration
 @description('The Automation Account Name')
-param automationAccountName string 
+param automationAccountName string
 
 @description('resource group name')
 param existingRGName string
@@ -13,7 +33,7 @@ param existingRGName string
 param existingVNETName string
 
 @description('Existing Subnet Name')
-param ExistingSUBNETName string 
+param ExistingSUBNETName string
 
 @description('Existing Vnet Resource Group Name')
 param ExistingVNETRGName string
@@ -26,34 +46,33 @@ param ExistingVNETRGName string
 param privatelinkSubResource string
 // end params declaration
 
-
 //fecthing existing resources objects
 resource DeploymentRG 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
-name: existingRGName
+  name: existingRGName
 }
 
 resource VnetRG 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
-name:ExistingVNETRGName
+  name: ExistingVNETRGName
 }
 
 //calling modules
 module DeployTag 'DeployTag.bicep' = {
-  name:'DeployAppSecurityGroupTag'
+  name: 'DeployAppSecurityGroupTag'
   scope: DeploymentRG
 }
 
 module DeployAcc 'DeployAcc.bicep' = {
-  name:'DeployAcc-${uniqueString(DeploymentRG.id)}'
+  name: 'DeployAcc-${uniqueString(DeploymentRG.id)}'
   scope: DeploymentRG
   params: {
-    automationAccountName:automationAccountName
-    location:location
+    automationAccountName: automationAccountName
+    location: location
   }
 }
 
 module GetSub 'DeploySub.bicep' = {
   name: 'GetSub-${uniqueString(VnetRG.id)}'
-  scope:VnetRG
+  scope: VnetRG
   params: {
     ExistingSubnetName: ExistingSUBNETName
     existingVnetName: existingVNETName
@@ -61,17 +80,16 @@ module GetSub 'DeploySub.bicep' = {
 }
 
 module DeployPE 'DeployPE.bicep' = {
-  name:'DeployPE-${uniqueString(VnetRG.id)}'
+  name: 'DeployPE-${uniqueString(VnetRG.id)}'
   scope: VnetRG
   params: {
-    location:location
+    location: location
     subnetID: GetSub.outputs.subnetID
     subnetName: ExistingSUBNETName
     subnetProperties: GetSub.outputs.subnetProperties
     existingVnetName: existingVNETName
-    automationAccountName:automationAccountName
-    privatelinkserviceId:DeployAcc.outputs.accID
+    automationAccountName: automationAccountName
+    privatelinkserviceId: DeployAcc.outputs.accID
     privatelinkSubResource: privatelinkSubResource
-    
   }
 }

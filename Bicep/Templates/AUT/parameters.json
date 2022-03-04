@@ -19,7 +19,6 @@
             "metadata": {
                 "description": "Existing Virtual Network Name"
             }
-
         },
         "ExistingSUBNETName": {
             "value": "pesubnet",
@@ -39,6 +38,5 @@
                 "description": "The Private Endpoint Sub Resource"
             }
         }
-        
     }
 }
