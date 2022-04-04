@@ -1,0 +1,160 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DepartmentCode": {
+            "type": "string"
+        },
+        "ApplicationName": {
+            "type": "string"
+        },
+        "AppEnvironment": {
+            "type": "string"
+        },
+        "LocationCode": {
+            "type": "string"
+        },
+        "FreeTextForAsrName": {
+            "type": "string"
+        },
+        "ExistingVirtualNetworkRGName": {
+            "type": "string"
+        },
+        "ExistingVirtualNetworkName": {
+            "type": "string"
+        },
+        "ExistingSubnetNAME": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "VaultName": "[concat(parameters('DepartmentCode'),parameters('ApplicationName'),parameters('AppEnvironment'),parameters('locationCode'),'asr',parameters('FreeTextForAsrName'))]",
+        "PrivateEndpointName": "[concat(parameters('DepartmentCode'),parameters('ApplicationName'),parameters('AppEnvironment'),parameters('locationCode'),'pe',parameters('FreeTextForAsrName'))]",
+        "virtualNetworkId": "[resourceId('Microsoft.Network/virtualNetworks',parameters('ExistingVirtualNetworkName'))]",
+        "PrivateDNSZoneNames": [
+            "privatelink.we.backup.windowsazure.com",
+            "privatelink.blob.core.windows.net",
+            "privatelink.queue.core.windows.net"
+        ]
+    },
+    "resources": [
+        {
+            "type": "Microsoft.recoveryservices/vaults",
+            "apiVersion": "2020-10-01",
+            "location": "westeurope",
+            "name": "[variables('VaultName')]",
+            "properties": {},
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "sku": {
+                "name": "RS0",
+                "tier": "Standard"
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "Private-endpointdeployment",
+            "resourceGroup": "[parameters('ExistingVirtualNetworkRGName')]",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.RecoveryServices/vaults', variables('VaultName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/privateEndpoints",
+                            "apiVersion": "2018-09-01",
+                            "name": "[variables('PrivateEndpointName')]",
+                            "location": "[resourceGroup().location]",
+                            "tags": {},
+                            "properties": {
+                                "privateLinkServiceConnections": [
+                                    {
+                                        "name": "[concat(variables('PrivateEndpointName'),'-', uniqueString(resourceGroup().id))]",
+                                        "properties": {
+                                            "privateLinkServiceId": "[resourceId('Microsoft.RecoveryServices/vaults', variables('VaultName'))]",
+                                            "groupIds": [
+                                                "AzureBackup"
+                                            ],
+                                            "privateLinkServiceConnectionState": {
+                                                "status": "Approved",
+                                                "description": "Auto-Approved",
+                                                "actionsRequired": "None"
+                                            }
+                                        }
+                                    }
+
+                                ],
+                                "subnet": {
+                                    "id": "[concat(variables('VirtualNetworkId'), '/subnets/',parameters('ExistingSUBNETName'))]"
+                                },
+                                "customDnsConfigs": [
+                                ]
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Network/privateDnsZones",
+                            "apiVersion": "2018-09-01",
+                            "name": "[variables('PrivateDNSZoneNames')[copyIndex()]]",
+                            "location": "global",
+                            "tags": {},
+                            "properties": {},
+                            "copy": {
+                                "name": "DeployPrivateDNSZonesCopy",
+                                "count": "[length(variables('PrivateDNSZoneNames'))]"
+                            }
+
+                        },
+                        {
+                            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                            "apiVersion": "2018-09-01",
+                            "name": "[concat(variables('PrivateDNSZoneNames')[copyIndex()],'/', uniqueString(variables('virtualNetworkId')))]",
+                            "dependsOn": [ "[resourceId('Microsoft.Network/privateDnsZones', variables('PrivateDNSZoneNames')[copyIndex()])]" ],
+                            "location": "global",
+                            "properties": {
+                                "virtualNetwork": {
+                                    "id": "[variables('virtualNetworkId')]"
+                                },
+                                "registrationEnabled": false
+                            },
+                            "copy": {
+                                "name": "DeployVirtualNetworkLinks",
+                                "count": "[length(variables('PrivateDNSZoneNames'))]"
+                            }
+
+                        },
+                        {
+                            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                            "apiVersion": "2021-03-01",
+                            "name": "[concat(variables('privateEndpointName'), '/', 'default')]",
+                            "location": "[resourceGroup().location]",
+                            "properties": {
+                                "privateDnsZoneConfigs": {
+                                    "copy": [
+                                        {
+                                            "name": "privateDnsZoneConfigs",
+                                            "count": "[length(variables('PrivateDNSZoneNames'))]",
+                                            "input": {
+                                                "name": "[variables('privateDnsZoneNames')[copyIndex('privateDnsZoneConfigs')]]",
+                                                "properties": {
+                                                    "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDNSZoneNames')[copyIndex('privateDnsZoneConfigs')])]"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+
+
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

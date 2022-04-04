@@ -1,0 +1,70 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DepartmentCode": {
+            "value": "gts",
+            "metadata": {
+                "DisplayName":"Team Unique Code",
+                "description": "specifies the team or department unique code"
+            }
+        },
+        "ApplicationName": {
+            "value": "test",
+            "metadata": {
+                "DisplayName":"Application Name",
+                "description": "specifies the Application Name"
+            }
+        },
+        "AppEnvironment": {
+            "value": "stg",
+            "metadata": {
+                "DisplayName":"application Environment",
+                "description": "specifies the Application Environment"
+            }
+        },
+        "LocationCode": {
+            "value": "we",
+            
+            "metadata": {
+                "DisplayName":"Department Name",
+                "description": "specifies the Application Name"
+            }
+        },
+        "FreeTextForAsrName": {
+            "value": "50",
+            "metadata": {
+                "DisplayName":"Asr.FreeTextForName",
+                "description": "specifies the Application Name"
+            }
+        },
+        "ExistingResourceGroupName": {
+            "value": "komo-asr-rg",
+            "metadata": {
+                "DisplayName":"PRIVATE.VNET.RG",
+                "description": "specifies the resource group to deploy ASR"
+            }
+        },
+        "ExistingVirtualNetworkRGName": {
+            "value": "tnc-komtrpr-dev-we",
+            "metadata": {
+                "DisplayName":"PRIVATE.VNET.RG",
+                "description": "specifies the resource group of the existing Virtual Network"
+            }
+        },
+        "ExistingVirtualNetworkName": {
+            "value": "tnc-komtrpr-dev-we-vnet",
+            "metadata": {
+                "DisplayName":"PRIVATE.VNET",
+                "description": "specifies the name of the existing Virtual Network to be used for the private endpoint creation"
+            }
+        },
+        "ExistingSubnetNAME":{
+            "value":"dbk-private",
+            "metadata": {
+                "Displayname":"Subnet Name",
+                "description": "subnet name where the private endpoint will be configrued"
+            }
+        }
+    }
+}
