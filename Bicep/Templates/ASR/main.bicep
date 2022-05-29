@@ -9,8 +9,8 @@ param ExistingResourceGroupName string
 param ExistingVirtualNetworkRGName string
 param ExistingVirtualNetworkName string
 param ExistingSubnetNAME string
+param location string = deployment().location
 
-var location = deployment().location
 var VaultName = '${DepartmentCode}${ApplicationName}${AppEnvironment}${LocationCode}asr${FreeTextForAsrName}'
 var PrivateEndpointName = '${DepartmentCode}${ApplicationName}${AppEnvironment}${LocationCode}pe${FreeTextForAsrName}'
 var virtualNetworkId = '${subscription().id}/resourceGroups/${ExistingVirtualNetworkRGName}/providers/Microsoft.Network/virtualNetworks/${ExistingVirtualNetworkName}'
