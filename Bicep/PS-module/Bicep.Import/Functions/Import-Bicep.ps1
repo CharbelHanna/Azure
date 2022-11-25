@@ -61,7 +61,7 @@ function import-Bicep {
             $file = "$file.bicep"
             if(!(Test-Path -path $file)){ 
                 write-host "processing file name "$_ -ForegroundColor cyan
-                   az bicep decompile -f $_  2>$logfile
+                   az bicep decompile -f $_  2>$logfile  
             } else {
                 write-host "file already exist... skipping Bicep generation" -ForegroundColor yellow
             }
